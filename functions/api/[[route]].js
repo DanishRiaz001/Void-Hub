@@ -124,9 +124,9 @@ export async function onRequest(context) {
     if (path[1] === 'login' && method === 'POST') {
       const { email, password } = await request.json();
       const adminEmail = env.ADMIN_EMAIL || 'admin@void.co';
-      const adminPw = env.ADMIN_PASSWORD || await hashPassword('void2024');
+      const adminPwHash = await hashPassword(env.ADMIN_PASSWORD || 'void2024');
       const hashedInput = await hashPassword(password || '');
-      if (email !== adminEmail || hashedInput !== adminPw) return err('Invalid credentials', 401);
+      if (email !== adminEmail || hashedInput !== adminPwHash) return err('Invalid credentials', 401);
       const token = await signJWT({ email, role: 'admin', exp: Math.floor(Date.now() / 1000) + 86400 * 30 }, env.JWT_SECRET || 'void-secret-key');
       return json({ token, email });
     }
