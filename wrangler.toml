@@ -1,0 +1,20 @@
+name = "void-hub"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "void-hub-db"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+[vars]
+APP_NAME = "VOID HUB"
+
+# Secrets (set via: wrangler secret put SECRET_NAME)
+# ADMIN_EMAIL      - your login email
+# ADMIN_PASSWORD   - your login password (hashed)
+# JWT_SECRET       - random 32-char string for JWT signing
+# GMAIL_CLIENT_ID  - from Google Cloud Console
+# GMAIL_CLIENT_SECRET - from Google Cloud Console
+# GMAIL_REFRESH_TOKEN - obtained via OAuth flow
+# GMAIL_FROM_EMAIL - your Gmail address

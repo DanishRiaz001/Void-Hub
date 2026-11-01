@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOID HUB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#0b0b0e;--bg2:#111116;--bg3:#18181f;--border:rgba(255,255,255,.07);--fg:#e8e8f0;--fg2:#8888a0;--acid:#d7ff3f;--blue:#3fb0ff;--green:#3fdf7f;--orange:#ff9f3f;--red:#ff4f4f;--purple:#c07fff;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:14px}
+a{text-decoration:none;color:inherit}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;max-width:95vw}
+.login-logo{font-size:11px;font-weight:800;letter-spacing:5px;color:var(--acid);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--fg2);margin-bottom:32px}
+.login-title{font-size:24px;font-weight:800;margin-bottom:28px}
+.login-err{background:rgba(255,79,79,.1);border:1px solid rgba(255,79,79,.2);color:var(--red);border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:14px;display:none}
+
+/* LAYOUT */
+.app{display:flex;height:100dvh;overflow:hidden}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;overflow-y:auto;transition:transform .2s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:49}
+.logo{padding:0 20px 24px}
+.logo-mark{font-size:11px;font-weight:800;letter-spacing:4px;color:var(--acid)}
+.logo-sub{font-size:9px;letter-spacing:2px;color:var(--fg2);margin-top:2px}
+.nav-section{padding:0 12px 8px;margin-bottom:4px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--fg2);padding:0 8px 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--fg2);font-weight:500;transition:all .15s}
+.nav-item:hover{background:var(--bg3);color:var(--fg)}.nav-item.active{background:rgba(215,255,63,.1);color:var(--acid)}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--acid);color:#111;font-size:10px;font-weight:800;border-radius:99px;padding:1px 6px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;flex:1}
+.hamburger{background:none;border:none;color:var(--fg2);font-size:20px;cursor:pointer;display:none;padding:4px;line-height:1}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* COMPONENTS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-acid{background:var(--acid);color:#111}.btn-acid:hover{opacity:.9}
+.btn-ghost{background:var(--bg3);color:var(--fg2);border:1px solid var(--border)}.btn-ghost:hover{color:var(--fg)}
+.btn-blue{background:rgba(63,176,255,.15);color:var(--blue);border:1px solid rgba(63,176,255,.2)}.btn-blue:hover{background:rgba(63,176,255,.25)}
+.btn-green{background:rgba(63,223,127,.15);color:var(--green);border:1px solid rgba(63,223,127,.2)}.btn-green:hover{background:rgba(63,223,127,.25)}
+.btn-red{background:rgba(255,79,79,.15);color:var(--red);border:1px solid rgba(255,79,79,.2)}.btn-red:hover{background:rgba(255,79,79,.25)}
+.btn-purple{background:rgba(192,127,255,.15);color:var(--purple);border:1px solid rgba(192,127,255,.2)}
+.btn-orange{background:rgba(255,159,63,.15);color:var(--orange);border:1px solid rgba(255,159,63,.2)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-xs{padding:3px 8px;font-size:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--fg2);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--fg2);text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--fg2);margin-top:4px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--fg2);text-transform:uppercase}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=url],input[type=number],textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--fg);outline:none;width:100%;font-family:inherit}
+input:focus,textarea:focus,select:focus{border-color:rgba(215,255,63,.5)}
+textarea{resize:vertical;min-height:80px}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{padding-left:34px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--fg2);pointer-events:none;font-size:13px}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{background:var(--bg2);padding:10px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--fg2);text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--fg)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02);cursor:pointer}
+tr.selected td{background:rgba(215,255,63,.04)}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.badge-New{background:rgba(215,255,63,.1);color:var(--acid)}
+.badge-Email-Sent{background:rgba(63,176,255,.1);color:var(--blue)}
+.badge-Replied{background:rgba(63,223,127,.1);color:var(--green)}
+.badge-Meeting-Set{background:rgba(192,127,255,.1);color:var(--purple)}
+.badge-Closed{background:rgba(63,223,127,.2);color:var(--green)}
+.badge-Bounced{background:rgba(255,79,79,.1);color:var(--red)}
+.badge-Opt-Out{background:rgba(136,136,160,.1);color:var(--fg2)}
+.badge-Hot{background:rgba(255,79,79,.12);color:var(--red)}
+.badge-Warm{background:rgba(255,159,63,.12);color:var(--orange)}
+.badge-Cold{background:rgba(63,176,255,.1);color:var(--blue)}
+.badge-sent{background:rgba(63,176,255,.1);color:var(--blue)}
+.badge-replied{background:rgba(63,223,127,.1);color:var(--green)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--fg2);font-size:22px;cursor:pointer;line-height:1}
+.modal-body{padding:20px 24px 24px}
+.panel{position:fixed;right:0;top:0;bottom:0;width:min(480px,100vw);background:var(--bg2);border-left:1px solid var(--border);z-index:91;overflow-y:auto;padding:24px;transition:transform .25s}
+.panel.hidden{transform:translateX(100%)}
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#222230;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:all .25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-label{font-size:12px;width:100px;color:var(--fg2)}
+.funnel-bar-wrap{flex:1;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.funnel-bar{height:100%;border-radius:99px;transition:width .4s}
+.funnel-num{font-size:12px;font-weight:700;width:28px;text-align:right}
+.info-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--fg2);width:76px;font-size:11px;flex-shrink:0}
+.copy-btn{background:none;border:none;color:var(--fg2);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:12px}
+.copy-btn:hover{background:var(--bg3)}
+.tpl-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;margin-bottom:10px}
+.tpl-card:hover{border-color:rgba(215,255,63,.3)}
+.tpl-card.selected-tpl{border-color:var(--acid);background:rgba(215,255,63,.05)}
+.tpl-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.tpl-preview{font-size:11px;color:var(--fg2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.act-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-icon{width:28px;height:28px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.act-text{font-size:12px;line-height:1.5}
+.act-time{font-size:10px;color:var(--fg2);margin-top:2px}
+.empty{text-align:center;padding:48px;color:var(--fg2);font-size:13px}
+.bulk-bar{background:rgba(215,255,63,.08);border:1px solid rgba(215,255,63,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:none;align-items:center;gap:10px;flex-wrap:wrap}
+.bulk-bar.show{display:flex}
+.bulk-count{font-size:13px;font-weight:700;color:var(--acid);margin-right:4px}
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%);background-size:200%;animation:shimmer 1.2s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.contact-preview{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:var(--fg2);display:none}
+.contact-preview.show{display:block}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:50;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .hamburger{display:block}
+  .content{padding:16px}
+  .form-grid{grid-template-columns:1fr}
+  .topbar{padding:12px 16px;gap:8px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">VOID</div>
+    <div class="login-sub">SUPPLY CO. — HUB</div>
+    <div class="login-title">Sign In</div>
+    <div class="login-err" id="login-err"></div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Email</label>
+      <input type="email" id="login-email" placeholder="admin@void.co" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Password</label>
+      <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-acid" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()" id="login-btn">Sign In →</button>
+    <div style="margin-top:16px;font-size:11px;color:var(--fg2);text-align:center">Default: admin@void.co / void2024</div>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <div class="sidebar" id="sidebar">
+    <div class="logo"><div class="logo-mark">VOID</div><div class="logo-sub">HUB</div></div>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard');closeSidebar()"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="nav('activity');closeSidebar()"><span class="nav-icon">⚡</span> Activity</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Contacts</div>
+      <div class="nav-item" onclick="nav('contacts');closeSidebar()"><span class="nav-icon">👤</span> All Contacts <span class="nav-badge" id="nb-total">0</span></div>
+      <div class="nav-item" onclick="nav('import');closeSidebar()"><span class="nav-icon">📥</span> Import</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Outreach</div>
+      <div class="nav-item" onclick="nav('compose');closeSidebar()"><span class="nav-icon">✉</span> Compose Email</div>
+      <div class="nav-item" onclick="nav('bulk');closeSidebar()"><span class="nav-icon">📨</span> Bulk Email</div>
+      <div class="nav-item" onclick="nav('sent');closeSidebar()"><span class="nav-icon">📤</span> Sent Emails</div>
+      <div class="nav-item" onclick="nav('templates');closeSidebar()"><span class="nav-icon">📋</span> Templates</div>
+    </div>
+    <div class="nav-section" style="margin-top:auto">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="nav('settings');closeSidebar()"><span class="nav-icon">⚙</span> Settings</div>
+      <div class="nav-item" onclick="doLogout()"><span class="nav-icon">🚪</span> Sign Out</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" onclick="openSidebar()">☰</button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div id="gmail-badge" style="font-size:11px;display:flex;align-items:center;gap:6px"></div>
+      <button class="btn btn-ghost btn-sm" onclick="nav('import')" style="display:none" id="btn-add-contact">＋ Add</button>
+      <button class="btn btn-acid btn-sm" onclick="nav('compose')">✉ Email</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- Contact detail panel -->
+<div class="panel-overlay" id="panel-overlay" style="display:none" onclick="closePanel()"></div>
+<div class="panel hidden" id="contact-panel"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="handleModalClick(event)">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+let TOKEN = '', currentPage = 'dashboard';
+let contacts = [], totalContacts = 0, templates = [], activity_log = [];
+let sortKey = 'added', sortDir = -1, searchQ = '', filterApplied = {};
+let selectedIds = new Set();
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-err');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  errEl.style.display = 'none';
+  try {
+    const r = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email,password:pw}) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Login failed');
+    TOKEN = d.token;
+    localStorage.setItem('void_token', TOKEN);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    await init();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Sign In →';
+}
+
+function doLogout() {
+  TOKEN = ''; localStorage.removeItem('void_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function api(path, opts={}) {
+  const r = await fetch(`${API}/${path}`, {
+    ...opts,
+    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${TOKEN}`, ...(opts.headers||{}) }
+  });
+  if (r.status === 401) { doLogout(); throw new Error('Unauthorized'); }
+  return r.json();
+}
+
+// ── MOBILE SIDEBAR ─────────────────────────────────────────────────────────────
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadContacts(), loadTemplates(), checkGmail()]);
+  nav('dashboard');
+}
+
+async function loadContacts(params={}) {
+  const q = new URLSearchParams({limit:500,...params}).toString();
+  const data = await api(`contacts?${q}`);
+  contacts = data.results || data;
+  totalContacts = data.total || contacts.length;
+  document.getElementById('nb-total').textContent = totalContacts;
+  return contacts;
+}
+async function loadTemplates() { templates = await api('templates'); return templates; }
+async function checkGmail() {
+  try {
+    const d = await api('email/gmail-status');
+    const badge = document.getElementById('gmail-badge');
+    if (d.connected) badge.innerHTML = `<span style="color:var(--green)">●</span><span style="display:none" id="gmail-addr"> ${d.email}</span>`;
+    else badge.innerHTML = `<span style="color:var(--orange)">●</span>`;
+  } catch{}
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const PAGE_TITLES = {dashboard:'Dashboard',contacts:'All Contacts',import:'Import Contacts',compose:'Compose Email',bulk:'Bulk Email',sent:'Sent Emails',templates:'Email Templates',activity:'Activity Log',settings:'Settings'};
+
+async function nav(page) {
+  currentPage = page;
+  selectedIds.clear();
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const navMap = {dashboard:0,activity:1,contacts:2,import:3,compose:4,bulk:5,sent:6,templates:7,settings:8,};
+  const items = document.querySelectorAll('.nav-item');
+  if (navMap[page] !== undefined) items[navMap[page]]?.classList.add('active');
+  document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
+  const addBtn = document.getElementById('btn-add-contact');
+  if (addBtn) addBtn.style.display = page === 'contacts' ? '' : 'none';
+  document.getElementById('content').innerHTML = '<div style="padding:40px;text-align:center;color:var(--fg2)"></div>';
+  if (page==='dashboard') await renderDashboard();
+  else if (page==='contacts') await renderContacts();
+  else if (page==='import') renderImport();
+  else if (page==='compose') await renderCompose();
+  else if (page==='bulk') await renderBulk();
+  else if (page==='sent') await renderSent();
+  else if (page==='templates') await renderTemplates();
+  else if (page==='activity') await renderActivity();
+  else if (page==='settings') renderSettings();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function renderDashboard() {
+  const [stats] = await Promise.all([api('stats')]);
+  const byStatus = {};
+  (stats.byStatus||[]).forEach(r=>byStatus[r.status]=r.n);
+  const statuses = ['New','Email Sent','Replied','Meeting Set','Closed','Bounced'];
+  const maxS = Math.max(...statuses.map(s=>byStatus[s]||0), 1);
+  const statusColors = {New:'var(--acid)','Email Sent':'var(--blue)',Replied:'var(--green)','Meeting Set':'var(--purple)',Closed:'var(--green)',Bounced:'var(--red)'};
+  const replied = (byStatus['Replied']||0) + (byStatus['Meeting Set']||0) + (byStatus['Closed']||0);
+  const replyRate = stats.total ? Math.round(replied / stats.total * 100) : 0;
+  const topMarkets = (stats.byMarket||[]).slice(0,6);
+  const recent = await api('activity?limit=6');
+  const recentItems = recent.results || [];
+
+  document.getElementById('content').innerHTML = `
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total Contacts</div><div class="stat-value" style="color:var(--acid)">${stats.total||0}</div><div class="stat-sub">${stats.newThisWeek||0} added this week</div></div>
+    <div class="stat-card"><div class="stat-label">Emails This Week</div><div class="stat-value" style="color:var(--blue)">${stats.emailsThisWeek||0}</div><div class="stat-sub">sent via Gmail</div></div>
+    <div class="stat-card"><div class="stat-label">Replied</div><div class="stat-value" style="color:var(--green)">${byStatus['Replied']||0}</div><div class="stat-sub">responded</div></div>
+    <div class="stat-card"><div class="stat-label">Meetings Set</div><div class="stat-value" style="color:var(--purple)">${byStatus['Meeting Set']||0}</div><div class="stat-sub">calls booked</div></div>
+    <div class="stat-card"><div class="stat-label">Reply Rate</div><div class="stat-value" style="color:var(--orange)">${replyRate}%</div><div class="stat-sub">of all contacts</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-title">Outreach Funnel <span style="font-weight:400;font-size:11px">${stats.total||0} total</span></div>
+      ${statuses.map(s=>`<div class="funnel-row"><div class="funnel-label">${s}</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${(byStatus[s]||0)/maxS*100}%;background:${statusColors[s]||'var(--fg2)'}"></div></div><div class="funnel-num">${byStatus[s]||0}</div></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">Top Markets</div>
+      ${topMarkets.length ? topMarkets.map(m=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${m.market||'Unknown'}</span><strong>${m.n}</strong></div>`).join('') : '<div class="empty" style="padding:20px">No market data yet</div>'}
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Activity <button class="btn btn-ghost btn-sm" onclick="nav('activity')" style="font-size:10px;padding:3px 8px">See all</button></div>
+      ${recentItems.map(a=>`<div class="act-item"><div class="act-icon">${a.icon||'📝'}</div><div><div class="act-text">${a.message}${a.contact_name?' — '+a.contact_name:''}</div><div class="act-time">${timeAgo(a.created_at)}</div></div></div>`).join('') || '<div class="empty" style="padding:20px">No activity yet</div>'}
+    </div>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-acid" onclick="nav('import')" style="justify-content:center">＋ Add New Contact</button>
+        <button class="btn btn-blue" onclick="nav('compose')" style="justify-content:center">✉ Compose Email</button>
+        <button class="btn btn-purple" onclick="nav('bulk')" style="justify-content:center">📨 Bulk Email Campaign</button>
+        <button class="btn btn-ghost" onclick="filterApplied={status:'New'};nav('contacts')" style="justify-content:center">📋 New Contacts (${byStatus['New']||0})</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── CONTACTS ──────────────────────────────────────────────────────────────────
+async function renderContacts(reload=true) {
+  if (reload) await loadContacts(filterApplied);
+  let list = [...contacts];
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    list = list.filter(c=>[c.name,c.company,c.email,c.phone,c.country].some(v=>(v||'').toLowerCase().includes(q)));
+  }
+  list.sort((a,b)=>{ const va=a[sortKey]||'',vb=b[sortKey]||''; return sortDir*(va<vb?-1:va>vb?1:0); });
+  const markets = [...new Set(contacts.map(c=>c.market).filter(Boolean))].sort();
+  const statuses = ['New','Email Sent','Replied','Meeting Set','Closed','Bounced','Opt-Out'];
+
+  document.getElementById('content').innerHTML = `
+  <div class="bulk-bar" id="bulk-bar">
+    <span class="bulk-count" id="bulk-count">0</span> selected
+    <button class="btn btn-blue btn-sm" onclick="bulkEmailSelected()">✉ Email Selected</button>
+    <button class="btn btn-ghost btn-sm" onclick="changeStatusSelected()">↕ Change Status</button>
+    <button class="btn btn-red btn-sm" onclick="deleteSelected()">🗑 Delete</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearSelection()">✕ Clear</button>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Search name, company, email…" value="${searchQ}" oninput="searchQ=this.value;renderContacts(false)"></div>
+    <select onchange="filterApplied.status=this.value||undefined;renderContacts()" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--fg)">
+      <option value="">All Statuses</option>${statuses.map(s=>`<option value="${s}" ${filterApplied.status===s?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <select onchange="filterApplied.market=this.value||undefined;renderContacts()" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--fg)">
+      <option value="">All Markets</option>${markets.map(m=>`<option value="${m}" ${filterApplied.market===m?'selected':''}>${m}</option>`).join('')}
+    </select>
+    <span style="font-size:12px;color:var(--fg2);white-space:nowrap">${list.length} contacts</span>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th style="width:36px"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this.checked)" style="width:14px;height:14px;cursor:pointer"></th>
+        ${['name','company','email','market','status','priority'].map(k=>`<th onclick="sortContacts('${k}')">${k.charAt(0).toUpperCase()+k.slice(1)} ${sortKey===k?(sortDir>0?'↑':'↓'):''}</th>`).join('')}
+        <th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(c=>`<tr onclick="openPanel('${c.id}')" class="${selectedIds.has(c.id)?'selected':''}">
+          <td onclick="event.stopPropagation()"><input type="checkbox" ${selectedIds.has(c.id)?'checked':''} onchange="toggleSelect('${c.id}',this.checked)" style="width:14px;height:14px;cursor:pointer"></td>
+          <td><strong>${esc(c.name)}</strong></td>
+          <td>${esc(c.company)}</td>
+          <td><a href="mailto:${c.email}" onclick="event.stopPropagation()" style="color:var(--blue)">${c.email||'—'}</a></td>
+          <td>${c.market||'—'}</td>
+          <td><span class="badge badge-${(c.status||'New').replace(/ /g,'-')}">${c.status||'New'}</span></td>
+          <td><span class="badge badge-${c.priority||'Warm'}">${c.priority||'Warm'}</span></td>
+          <td onclick="event.stopPropagation()">
+            <div style="display:flex;gap:5px">
+              <button class="btn btn-blue btn-xs" onclick="openComposeFor('${c.id}')">✉</button>
+              <button class="btn btn-ghost btn-xs" onclick="openEdit('${c.id}')">✏</button>
+              <button class="btn btn-red btn-xs" onclick="deleteContact('${c.id}')">✕</button>
+            </div>
+          </td>
+        </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--fg2)">No contacts found</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function sortContacts(key) {
+  if (sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=1;}
+  renderContacts(false);
+}
+
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+  const row = document.querySelector(`tr.selected`);
+}
+
+function toggleSelectAll(checked) {
+  contacts.forEach(c=>{ if(checked) selectedIds.add(c.id); else selectedIds.delete(c.id); });
+  renderContacts(false);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if (bar) bar.classList.toggle('show', selectedIds.size > 0);
+  if (cnt) cnt.textContent = selectedIds.size;
+  // Re-render to update row highlights without full reload
+  document.querySelectorAll('tbody tr').forEach(tr=>{
+    const cb = tr.querySelector('input[type=checkbox]');
+    if (cb) tr.classList.toggle('selected', cb.checked);
+  });
+}
+
+function clearSelection() {
+  selectedIds.clear();
+  document.getElementById('select-all').checked = false;
+  renderContacts(false);
+}
+
+function bulkEmailSelected() {
+  const ids = [...selectedIds];
+  if (!ids.length) return;
+  nav('bulk');
+  sessionStorage.setItem('bulk_contact_ids', JSON.stringify(ids));
+}
+
+async function changeStatusSelected() {
+  const ids = [...selectedIds];
+  if (!ids.length) return;
+  const statuses = ['New','Email Sent','Replied','Meeting Set','Closed','Bounced','Opt-Out'];
+  showModal(`
+    <div class="modal-header"><div style="font-size:16px;font-weight:800">Change Status for ${ids.length} Contacts</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">New Status</label>
+        <select id="bulk-status">${statuses.map(s=>`<option>${s}</option>`).join('')}</select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-acid" onclick="applyBulkStatus(${JSON.stringify(ids)})">Apply to ${ids.length} Contacts</button>
+      </div>
+    </div>`);
+}
+
+async function applyBulkStatus(ids) {
+  const status = document.getElementById('bulk-status')?.value;
+  if (!status) return;
+  closeModal();
+  let n = 0;
+  for (const id of ids) {
+    const c = contacts.find(x=>x.id===id);
+    if (!c) continue;
+    await api(`contacts/${id}`, {method:'PUT', body: JSON.stringify({...c, status})});
+    n++;
+  }
+  toast(`Status updated for ${n} contacts`, '✅');
+  selectedIds.clear();
+  await renderContacts(true);
+}
+
+async function deleteSelected() {
+  const ids = [...selectedIds];
+  if (!ids.length || !confirm(`Delete ${ids.length} contacts? This cannot be undone.`)) return;
+  for (const id of ids) await api(`contacts/${id}`, {method:'DELETE'});
+  toast(`${ids.length} contacts deleted`, '🗑');
+  selectedIds.clear();
+  await loadContacts();
+  renderContacts(false);
+}
+
+async function exportCSV() {
+  try {
+    const r = await fetch(`${API}/contacts/export`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+    if (!r.ok) throw new Error('Export failed');
+    const text = await r.text();
+    const blob = new Blob([text], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'void-hub-contacts.csv'; a.click();
+    URL.revokeObjectURL(url);
+    toast('Exported!', '📤');
+  } catch(e) { toast(e.message, '⚠'); }
+}
+
+// ── IMPORT ────────────────────────────────────────────────────────────────────
+function renderImport() {
+  document.getElementById('content').innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px">
+    <div class="card">
+      <div class="card-title">Add Single Contact</div>
+      <div class="form-grid">
+        ${fg('name','Full Name','text','',true)} ${fg('company','Company','text','',true)}
+        ${fg('email','Email','email','')} ${fg('phone','Phone','tel','')}
+        ${fg('country','Country','text','')} ${fgsel('market','Market',['EU - DACH','EU - France','EU - Italy','EU - South','Scandinavia','North America','Middle East','Asia Pacific','Other'])}
+        ${fg('website','Website','url','')} ${fg('instagram','Instagram','text','')}
+        ${fgsel('type','Type',['Retailer','Boutique','Distributor','Multi-Brand Store','Online Retailer','Designer Boutique','Concept Store','Brand Owner','Other'])}
+        ${fgsel('source','Source',['LinkedIn','Cold Email','Instagram DM','Referral','Trade Show','Website','CSV Import','Other'])}
+        ${fgsel('status','Status',['New','Email Sent','Replied','Meeting Set','Closed'])}
+        ${fgsel('priority','Priority',['Hot','Warm','Cold'])}
+        <div class="form-group full"><label class="form-label">Notes</label><textarea id="f-notes" rows="3"></textarea></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-acid" onclick="submitAdd()">＋ Add Contact</button>
+        <button class="btn btn-ghost" onclick="clearAddForm()">Clear</button>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Bulk CSV Import</div>
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('csv-upload').click()" id="drop-area" ondragover="event.preventDefault();this.style.borderColor='var(--acid)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleDrop(event)">
+          <div style="font-size:36px;margin-bottom:10px">📄</div>
+          <div style="font-weight:700;margin-bottom:4px">Drop CSV file here</div>
+          <div style="font-size:12px;color:var(--fg2)">or click to browse</div>
+          <input type="file" id="csv-upload" accept=".csv" style="display:none" onchange="handleCsvUpload(this.files[0])">
+        </div>
+        <div style="margin-top:14px;background:var(--bg3);border-radius:8px;padding:12px;font-size:11px;color:var(--fg2);line-height:1.8">
+          <strong>Required:</strong> name, company<br>
+          <strong>Optional:</strong> email, phone, country, market, website, instagram, type, source, status, priority, notes
+        </div>
+        <div id="csv-preview"></div>
+      </div>
+      <div class="card" style="margin-top:0">
+        <div class="card-title">CSV Column Reference</div>
+        <div style="font-size:12px;color:var(--fg2);line-height:1.9">
+          The scraper outputs CSV with these columns:<br>
+          <code style="color:var(--acid);background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:11px">name, company, email, phone, country, market, website, instagram</code><br><br>
+          Export results from Google Maps / Instagram / LinkedIn scrapers, then drag the CSV here.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function fg(id,label,type,val='',req=false) {
+  return `<div class="form-group"><label class="form-label">${label}</label><input type="${type}" id="f-${id}" value="${val}" ${req?'required':''}></div>`;
+}
+function fgsel(id,label,opts,sel='') {
+  return `<div class="form-group"><label class="form-label">${label}</label><select id="f-${id}">${opts.map(o=>`<option ${sel===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+}
+function gv(id) { const e=document.getElementById('f-'+id); return e?e.value.trim():''; }
+
+async function submitAdd() {
+  const name=gv('name'),company=gv('company');
+  if (!name||!company) { toast('Name and company required','⚠'); return; }
+  const c={name,company,email:gv('email'),phone:gv('phone'),country:gv('country'),market:gv('market'),website:gv('website'),instagram:gv('instagram'),type:gv('type'),source:gv('source'),status:gv('status')||'New',priority:gv('priority')||'Warm',notes:gv('notes')};
+  const r = await api('contacts',{method:'POST',body:JSON.stringify(c)});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast(`${name} added!`,'✅');
+  clearAddForm();
+  await loadContacts();
+}
+
+function clearAddForm() {
+  ['name','company','email','phone','country','website','instagram','notes'].forEach(id=>{const e=document.getElementById('f-'+id);if(e)e.value='';});
+}
+
+function handleDrop(e) { e.preventDefault(); document.getElementById('drop-area').style.borderColor=''; handleCsvUpload(e.dataTransfer.files[0]); }
+
+function handleCsvUpload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    if (!lines.length) return;
+    const headers = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z_]/g,''));
+    const rows = lines.slice(1).map(line=>{
+      const vals = splitCSVLine(line);
+      const obj={};
+      headers.forEach((h,i)=>{ obj[h]=vals[i]||''; });
+      return obj;
+    }).filter(r=>r.name&&r.company);
+    if (!rows.length) { toast('No valid rows found (need name + company columns)','⚠'); return; }
+    window._csvRows = rows;
+    document.getElementById('csv-preview').innerHTML = `
+      <div class="card" style="margin:12px 0 0">
+        <div style="font-weight:700;margin-bottom:10px">${rows.length} contacts ready</div>
+        ${rows.slice(0,3).map(r=>`<div style="font-size:12px;color:var(--fg2);margin-bottom:3px">• ${r.name} @ ${r.company}${r.email?' · '+r.email:''}</div>`).join('')}
+        ${rows.length>3?`<div style="font-size:11px;color:var(--fg2);margin-bottom:8px">…and ${rows.length-3} more</div>`:''}
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-acid btn-sm" onclick="confirmImport()">Import ${rows.length} Contacts</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csv-preview').innerHTML='';window._csvRows=null">Cancel</button>
+        </div>
+      </div>`;
+  };
+  reader.readAsText(file);
+}
+
+function splitCSVLine(line) {
+  const vals = []; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else{inQ=!inQ;}}
+    else if(line[i]===','&&!inQ){vals.push(cur.trim());cur='';}
+    else cur+=line[i];
+  }
+  vals.push(cur.trim());
+  return vals;
+}
+
+async function confirmImport() {
+  const rows = window._csvRows;
+  if (!rows?.length) return;
+  const btn = document.querySelector('#csv-preview .btn-acid');
+  if(btn){btn.disabled=true;btn.textContent='Importing…';}
+  const r = await api('contacts',{method:'POST',body:JSON.stringify(rows)});
+  if (r.error) { toast(r.error,'⚠'); if(btn){btn.disabled=false;btn.textContent=`Import ${rows.length} Contacts`;} return; }
+  toast(`${r.inserted} contacts imported!`,'✅');
+  document.getElementById('csv-preview').innerHTML='';
+  window._csvRows=null;
+  await loadContacts();
+}
+
+// ── CONTACT PANEL ──────────────────────────────────────────────────────────────
+function openPanel(id) {
+  const c = contacts.find(x=>x.id===id);
+  if (!c) return;
+  const panel = document.getElementById('contact-panel');
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:4px">${esc(c.name)}</div>
+        <div style="font-size:13px;color:var(--fg2);margin-bottom:10px">${esc(c.company)} · ${c.country||'—'}</div>
+        <div style="display:flex;gap:6px"><span class="badge badge-${(c.status||'New').replace(/ /g,'-')}">${c.status||'New'}</span><span class="badge badge-${c.priority||'Warm'}">${c.priority||'Warm'}</span></div>
+      </div>
+      <button style="background:none;border:none;color:var(--fg2);font-size:22px;cursor:pointer" onclick="closePanel()">✕</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Contact Info <button class="btn btn-ghost btn-xs" onclick="hunterSearch('${c.id}')" style="margin-left:auto">🔍 Find Email</button></div>
+      ${c.email
+        ? `<div class="info-row"><span style="width:22px">✉</span><span class="info-label">Email</span><span style="flex:1;word-break:break-all">${c.email}</span><button class="copy-btn" onclick="cp('${c.email}')">⧉</button></div>`
+        : `<div class="info-row" style="background:rgba(215,255,63,.04);border-radius:6px"><span style="width:22px">✉</span><span class="info-label">Email</span><span style="flex:1;color:var(--fg2);font-size:12px">No email — use Find Email above</span></div>`}
+      ${c.phone?`<div class="info-row"><span style="width:22px">📞</span><span class="info-label">Phone</span><span style="flex:1">${c.phone}</span><button class="copy-btn" onclick="cp('${c.phone}')">⧉</button></div>`:''}
+      ${c.website?`<div class="info-row"><span style="width:22px">🌐</span><span class="info-label">Website</span><span style="flex:1;word-break:break-all;font-size:12px">${c.website}</span></div>`:''}
+      ${c.instagram?`<div class="info-row"><span style="width:22px">📸</span><span class="info-label">Instagram</span><span style="flex:1">${c.instagram}</span><button class="copy-btn" onclick="cp('${c.instagram}')">⧉</button></div>`:''}
+      <div class="info-row"><span style="width:22px">📍</span><span class="info-label">Market</span><span style="flex:1">${c.market||'—'}</span></div>
+      <div class="info-row"><span style="width:22px">🏷</span><span class="info-label">Type</span><span style="flex:1">${c.type||'—'}</span></div>
+      ${c.source?`<div class="info-row"><span style="width:22px">🔎</span><span class="info-label">Source</span><span style="flex:1">${c.source}</span></div>`:''}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn btn-blue btn-sm" onclick="closePanel();openComposeFor('${c.id}')">✉ Email</button>
+      <button class="btn btn-ghost btn-sm" onclick="closePanel();openEdit('${c.id}')">✏ Edit</button>
+      <button class="btn btn-red btn-sm" onclick="closePanel();deleteContact('${c.id}')">🗑 Delete</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Update Status</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${['New','Email Sent','Replied','Meeting Set','Closed','Bounced'].map(s=>`<button class="btn btn-ghost btn-sm" style="${c.status===s?'border-color:var(--acid);color:var(--acid)':''}" onclick="setStatus('${c.id}','${s}')">${s}</button>`).join('')}
+      </div>
+    </div>
+    ${c.notes?`<div class="card" style="margin-bottom:12px"><div class="card-title">Notes</div><div style="font-size:13px;line-height:1.7;color:var(--fg2);white-space:pre-wrap">${esc(c.notes)}</div></div>`:''}
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Email History <span id="email-hist-count"></span></div>
+      <div id="email-history"><div style="color:var(--fg2);font-size:12px">Loading…</div></div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--fg2);text-transform:uppercase;margin-bottom:10px">Quick Templates</div>
+      ${templates.slice(0,4).map(t=>`<div class="tpl-card" onclick="closePanel();openComposeFor('${c.id}','${t.id}')"><div class="tpl-name">${t.name}</div><div class="tpl-preview">${t.body.substring(0,90)}…</div></div>`).join('')}
+    </div>`;
+  document.getElementById('panel-overlay').style.display = 'block';
+  panel.classList.remove('hidden');
+  loadContactEmailHistory(c.id);
+}
+
+async function loadContactEmailHistory(contactId) {
+  const el = document.getElementById('email-history');
+  const cntEl = document.getElementById('email-hist-count');
+  if (!el) return;
+  try {
+    const data = await api(`email/contact/${contactId}`);
+    const emails = Array.isArray(data) ? data : [];
+    if (cntEl) cntEl.textContent = emails.length ? `(${emails.length})` : '';
+    if (!emails.length) { el.innerHTML = '<div style="color:var(--fg2);font-size:12px">No emails sent yet</div>'; return; }
+    el.innerHTML = emails.map(e=>`
+      <div style="border-bottom:1px solid var(--border);padding:8px 0;font-size:12px">
+        <div style="font-weight:600;margin-bottom:2px">${esc(e.subject)}</div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--fg2)">
+          <span>${fmtDate(e.sent_at)}</span>
+          <span class="badge badge-${e.status}">${e.status}</span>
+          ${e.status==='sent'?`<button class="btn btn-green btn-xs" onclick="markReplied('${e.id}','${contactId}')">↩ Mark Replied</button>`:''}
+        </div>
+      </div>`).join('');
+  } catch{ el.innerHTML = '<div style="color:var(--fg2);font-size:12px">Could not load history</div>'; }
+}
+
+async function markReplied(emailId, contactId) {
+  const r = await api(`email/reply/${emailId}`, {method:'PUT'});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast('Marked as replied — contact status updated','✅');
+  await loadContacts();
+  loadContactEmailHistory(contactId);
+}
+
+function closePanel() {
+  document.getElementById('contact-panel').classList.add('hidden');
+  document.getElementById('panel-overlay').style.display = 'none';
+}
+
+// ── COMPOSE EMAIL ─────────────────────────────────────────────────────────────
+async function renderCompose(contactId, templateId) {
+  await Promise.all([loadContacts(), loadTemplates()]);
+  const selContact = contacts.find(c=>c.id===contactId);
+  const selTemplate = templates.find(t=>t.id===templateId) || (templates[0] || null);
+
+  const fillBody = (tpl, contact) => {
+    if (!tpl) return '';
+    const first = (contact?.name||'').split(' ')[0];
+    return tpl.body.replace(/{name}/g,first).replace(/{company}/g,contact?.company||'').replace(/{market}/g,contact?.market||'');
+  };
+
+  document.getElementById('content').innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:20px;max-width:1100px">
+    <div class="card">
+      <div class="card-title">Compose Email</div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">To — Contact</label>
+          <select id="compose-contact" onchange="refreshCompose()">
+            <option value="">Select contact…</option>
+            ${contacts.filter(c=>c.email).map(c=>`<option value="${c.id}" ${c.id===contactId?'selected':''}>${esc(c.name)} &lt;${c.email}&gt;</option>`).join('')}
+          </select>
+          <div class="contact-preview ${selContact?'show':''}" id="contact-preview">
+            ${selContact?`<strong>${selContact.company}</strong> · ${selContact.market||'—'} · <span class="badge badge-${(selContact.status||'New').replace(/ /g,'-')}" style="font-size:9px">${selContact.status||'New'}</span>`:''}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Template</label>
+          <select id="compose-template" onchange="applyTemplate()">
+            <option value="">No template</option>
+            ${templates.map(t=>`<option value="${t.id}" ${t.id===(templateId||selTemplate?.id)?'selected':''}>${t.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group full"><label class="form-label">Subject</label><input type="text" id="compose-subject" value="${esc(selTemplate?.subject||'')}"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Body</label>
+        <textarea id="compose-body" style="min-height:320px;font-size:13px;line-height:1.7">${fillBody(selTemplate,selContact)}</textarea>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-acid" onclick="sendEmail()" id="send-btn">✉ Send via Gmail</button>
+        <button class="btn btn-ghost" onclick="copyEmailText()">⧉ Copy</button>
+        <span style="font-size:11px;color:var(--fg2)">Sends from your connected Gmail account</span>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Templates</div>
+        ${templates.map(t=>`<div class="tpl-card ${t.id===(templateId||selTemplate?.id)?'selected-tpl':''}" id="tpl-${t.id}" onclick="quickLoadTemplate('${t.id}')"><div class="tpl-name">${t.name}</div><div class="tpl-preview">${t.body.substring(0,80)}…</div><div style="font-size:10px;color:var(--fg2);margin-top:6px">Sent ${t.sent_count||0}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function refreshCompose() {
+  const cid = document.getElementById('compose-contact')?.value;
+  const contact = contacts.find(c=>c.id===cid);
+  const prev = document.getElementById('contact-preview');
+  if (prev) {
+    if (contact) {
+      prev.innerHTML = `<strong>${contact.company}</strong> · ${contact.market||'—'} · <span class="badge badge-${(contact.status||'New').replace(/ /g,'-')}" style="font-size:9px">${contact.status||'New'}</span>`;
+      prev.classList.add('show');
+    } else prev.classList.remove('show');
+  }
+  applyTemplate();
+}
+
+function applyTemplate() {
+  const tid = document.getElementById('compose-template')?.value;
+  const cid = document.getElementById('compose-contact')?.value;
+  const tpl = templates.find(t=>t.id===tid);
+  const contact = contacts.find(c=>c.id===cid);
+  if (tpl) {
+    document.getElementById('compose-subject').value = tpl.subject;
+    const first = (contact?.name||'').split(' ')[0];
+    document.getElementById('compose-body').value = tpl.body
+      .replace(/{name}/g,first).replace(/{company}/g,contact?.company||'').replace(/{market}/g,contact?.market||'');
+  }
+  document.querySelectorAll('.tpl-card').forEach(el=>el.classList.remove('selected-tpl'));
+  if (tid) document.getElementById('tpl-'+tid)?.classList.add('selected-tpl');
+}
+
+function quickLoadTemplate(tid) {
+  const el = document.getElementById('compose-template');
+  if (el) el.value = tid;
+  applyTemplate();
+}
+
+async function openComposeFor(contactId, templateId) {
+  await nav('compose');
+  await renderCompose(contactId, templateId);
+}
+
+async function sendEmail() {
+  const cid = document.getElementById('compose-contact').value;
+  const subject = document.getElementById('compose-subject').value.trim();
+  const body = document.getElementById('compose-body').value.trim();
+  const tid = document.getElementById('compose-template')?.value || '';
+  if (!subject || !body) { toast('Subject and body required','⚠'); return; }
+  const contact = contacts.find(c=>c.id===cid);
+  const to = contact?.email || '';
+  if (!to) { toast('Select a contact with an email address','⚠'); return; }
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true; btn.textContent = '⏳ Sending…';
+  const r = await api('email/send', { method:'POST', body: JSON.stringify({ contact_id:cid||null, to, to_name:contact?.name||'', subject, body, template_id:tid||undefined }) });
+  btn.disabled = false; btn.textContent = '✉ Send via Gmail';
+  if (r.error) { toast(r.error, '⚠'); return; }
+  toast(`Sent to ${to}!`, '✅');
+  await loadContacts();
+}
+
+function copyEmailText() {
+  const s = document.getElementById('compose-subject')?.value||'';
+  const b = document.getElementById('compose-body')?.value||'';
+  navigator.clipboard.writeText(`Subject: ${s}\n\n${b}`).then(()=>toast('Copied!','⧉')).catch(()=>toast('Use Ctrl+C to copy manually','⚠'));
+}
+
+// ── BULK EMAIL ─────────────────────────────────────────────────────────────────
+async function renderBulk() {
+  await Promise.all([loadContacts(), loadTemplates()]);
+  const preselected = JSON.parse(sessionStorage.getItem('bulk_contact_ids') || 'null');
+  sessionStorage.removeItem('bulk_contact_ids');
+  const markets = [...new Set(contacts.map(c=>c.market).filter(Boolean))].sort();
+  const statuses = ['New','Email Sent','Replied','Meeting Set'];
+
+  document.getElementById('content').innerHTML = `
+  <div style="max-width:900px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-title">Step 1 — Choose Template</div>
+        <div id="bulk-tpl-list">
+          ${templates.map(t=>`<div class="tpl-card" id="btpl-${t.id}" onclick="selectBulkTemplate('${t.id}')">
+            <div class="tpl-name">${t.name}</div>
+            <div class="tpl-preview">${t.body.substring(0,90)}…</div>
+            <div style="font-size:10px;color:var(--fg2);margin-top:5px">Sent ${t.sent_count||0} times</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Step 2 — Choose Recipients</div>
+        ${preselected ? `
+          <div style="background:rgba(215,255,63,.08);border:1px solid rgba(215,255,63,.2);border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px">
+            <strong style="color:var(--acid)">${preselected.length} contacts</strong> selected from contacts table
+          </div>
+          <input type="hidden" id="bulk-mode" value="selected">
+        ` : `
+          <div style="margin-bottom:14px">
+            <label class="form-label" style="margin-bottom:8px">Mode</label>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" id="mode-filter" onclick="setBulkMode('filter')" style="border-color:var(--acid);color:var(--acid)">Filter Contacts</button>
+              <button class="btn btn-ghost btn-sm" id="mode-all" onclick="setBulkMode('all')">All with Email</button>
+            </div>
+          </div>
+          <div id="bulk-filter-opts">
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">Status Filter</label>
+              <select id="bulk-filter-status" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--fg)">
+                <option value="">All Statuses</option>${statuses.map(s=>`<option>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Market Filter</label>
+              <select id="bulk-filter-market" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--fg)">
+                <option value="">All Markets</option>${markets.map(m=>`<option>${m}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+        `}
+        <div id="bulk-recipient-count" style="margin-top:14px;font-size:13px;color:var(--fg2)">
+          ${preselected ? `Will send to <strong style="color:var(--acid)">${preselected.length} selected contacts</strong>` : 'Select filters to see recipient count'}
+        </div>
+        ${!preselected ? `<button class="btn btn-ghost btn-sm" onclick="previewBulkCount()" style="margin-top:10px">Preview Recipients</button>` : ''}
+      </div>
+    </div>
+    <div class="card" id="bulk-preview-card" style="display:none">
+      <div class="card-title">Preview — First 3 Recipients</div>
+      <div id="bulk-preview-content"></div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:4px">
+      <button class="btn btn-acid" id="bulk-send-btn" onclick="sendBulkEmail(${JSON.stringify(preselected||null)})" style="padding:12px 24px">📨 Send Bulk Email</button>
+      <span style="font-size:12px;color:var(--fg2)">Emails sent one by one with your Gmail account. This may take a minute for large lists.</span>
+    </div>
+  </div>`;
+
+  window._bulkMode = preselected ? 'selected' : 'filter';
+  window._bulkPreselected = preselected;
+}
+
+function selectBulkTemplate(id) {
+  document.querySelectorAll('.tpl-card').forEach(el=>el.classList.remove('selected-tpl'));
+  document.getElementById('btpl-'+id)?.classList.add('selected-tpl');
+  window._bulkTemplateId = id;
+  previewBulkEmail();
+}
+
+function setBulkMode(mode) {
+  window._bulkMode = mode;
+  document.getElementById('mode-filter')?.style && (document.getElementById('mode-filter').style.borderColor = mode==='filter'?'var(--acid)':'');
+  document.getElementById('mode-filter')?.style && (document.getElementById('mode-filter').style.color = mode==='filter'?'var(--acid)':'');
+  document.getElementById('mode-all')?.style && (document.getElementById('mode-all').style.borderColor = mode==='all'?'var(--acid)':'');
+  document.getElementById('mode-all')?.style && (document.getElementById('mode-all').style.color = mode==='all'?'var(--acid)':'');
+  const fo = document.getElementById('bulk-filter-opts');
+  if (fo) fo.style.display = mode==='filter' ? '' : 'none';
+  previewBulkCount();
+}
+
+async function previewBulkCount() {
+  const status = document.getElementById('bulk-filter-status')?.value || '';
+  const market = document.getElementById('bulk-filter-market')?.value || '';
+  const mode = window._bulkMode || 'filter';
+  let params = {limit:200};
+  if (mode==='filter') { if(status) params.status=status; if(market) params.market=market; }
+  const data = await api('contacts?' + new URLSearchParams(params).toString());
+  const list = (data.results||data).filter(c=>c.email);
+  const el = document.getElementById('bulk-recipient-count');
+  if (el) el.innerHTML = `Will send to <strong style="color:var(--acid)">${list.length} contacts</strong> with email addresses`;
+  window._bulkRecipientList = list;
+}
+
+async function previewBulkEmail() {
+  const tid = window._bulkTemplateId;
+  const tpl = templates.find(t=>t.id===tid);
+  if (!tpl) return;
+  const card = document.getElementById('bulk-preview-card');
+  const content = document.getElementById('bulk-preview-content');
+  if (!card || !content) return;
+  card.style.display = '';
+  const preview = contacts.filter(c=>c.email).slice(0,3);
+  content.innerHTML = preview.map(c=>{
+    const first = (c.name||'').split(' ')[0];
+    const subj = tpl.subject.replace(/{name}/g,first).replace(/{company}/g,c.company||'').replace(/{market}/g,c.market||'');
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;color:var(--fg2)">${c.name} &lt;${c.email}&gt;</div><div style="font-size:13px;font-weight:600;margin-top:2px">${subj}</div></div>`;
+  }).join('') || '<div style="color:var(--fg2);font-size:13px">No contacts with emails to preview</div>';
+}
+
+async function sendBulkEmail(preselected) {
+  const tid = window._bulkTemplateId;
+  if (!tid) { toast('Select a template first','⚠'); return; }
+  const btn = document.getElementById('bulk-send-btn');
+  const mode = window._bulkMode || 'filter';
+  let body = { template_id: tid };
+  if (preselected) {
+    body.contact_ids = preselected;
+  } else if (mode === 'selected' && window._bulkPreselected) {
+    body.contact_ids = window._bulkPreselected;
+  } else {
+    const status = document.getElementById('bulk-filter-status')?.value || '';
+    const market = document.getElementById('bulk-filter-market')?.value || '';
+    body.filter = { status: status||undefined, market: market||undefined };
+  }
+  const list = window._bulkRecipientList || preselected || [];
+  const count = preselected?.length || list.length;
+  if (!count) { toast('No recipients. Use "Preview Recipients" first','⚠'); return; }
+  if (!confirm(`Send "${templates.find(t=>t.id===tid)?.name}" to ${count} contacts?`)) return;
+  btn.disabled = true; btn.textContent = `⏳ Sending to ~${count} contacts…`;
+  const r = await api('email/bulk', {method:'POST', body: JSON.stringify(body)});
+  btn.disabled = false; btn.textContent = '📨 Send Bulk Email';
+  if (r.error) { toast(r.error, '⚠'); return; }
+  toast(`Sent ${r.sent} emails${r.failed?', '+r.failed+' failed':''}`, '✅');
+  await loadContacts();
+}
+
+// ── SENT EMAILS ───────────────────────────────────────────────────────────────
+async function renderSent() {
+  const sentSearch = '';
+  const sent = await api('email/sent');
+  document.getElementById('content').innerHTML = `
+  <div class="filter-bar" style="margin-bottom:12px">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Search by name, email, subject…" id="sent-search" oninput="filterSentTable(this.value)"></div>
+    <span id="sent-count" style="font-size:12px;color:var(--fg2)">${sent.length} emails</span>
+  </div>
+  <div class="table-wrap">
+    <table id="sent-table">
+      <thead><tr><th>To</th><th>Company</th><th>Subject</th><th>Status</th><th>Sent</th><th>Action</th></tr></thead>
+      <tbody id="sent-body">
+        ${renderSentRows(sent)}
+      </tbody>
+    </table>
+  </div>`;
+  window._sentAll = sent;
+}
+
+function renderSentRows(rows) {
+  if (!rows.length) return `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--fg2)">No emails sent yet</td></tr>`;
+  return rows.map(e=>`<tr>
+    <td><strong>${esc(e.to_name||e.to_email)}</strong><br><span style="font-size:11px;color:var(--fg2)">${e.to_email}</span></td>
+    <td style="font-size:12px">${esc(e.company||'—')}</td>
+    <td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.subject)}</td>
+    <td><span class="badge badge-${e.status||'sent'}">${e.status||'sent'}</span></td>
+    <td style="font-size:11px;color:var(--fg2);white-space:nowrap">${fmtDate(e.sent_at)}</td>
+    <td>${e.status==='sent'?`<button class="btn btn-green btn-xs" onclick="markRepliedFromSent('${e.id}')">↩ Replied</button>`:'—'}</td>
+  </tr>`).join('');
+}
+
+function filterSentTable(q) {
+  const all = window._sentAll || [];
+  const lq = q.toLowerCase();
+  const filtered = lq ? all.filter(e=>[e.to_name,e.to_email,e.subject,e.company].some(v=>(v||'').toLowerCase().includes(lq))) : all;
+  const body = document.getElementById('sent-body');
+  const cnt = document.getElementById('sent-count');
+  if (body) body.innerHTML = renderSentRows(filtered);
+  if (cnt) cnt.textContent = `${filtered.length} emails`;
+}
+
+async function markRepliedFromSent(emailId) {
+  const r = await api(`email/reply/${emailId}`, {method:'PUT'});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast('Marked as replied — contact status updated to Replied','✅');
+  await renderSent();
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+async function renderTemplates() {
+  await loadTemplates();
+  document.getElementById('content').innerHTML = `
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+    ${templates.map(t=>`
+      <div class="card" style="cursor:pointer" onclick="openEditTemplate('${t.id}')">
+        <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--acid);text-transform:uppercase;margin-bottom:8px">${t.tag||'Template'}</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px">${t.name}</div>
+        <div style="font-size:12px;color:var(--fg2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${t.body.substring(0,140)}</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:12px;font-size:11px;color:var(--fg2)">
+          <span>Sent: <strong style="color:var(--fg)">${t.sent_count||0}</strong></span>
+          <span>Replied: <strong style="color:var(--green)">${t.reply_count||0}</strong></span>
+          ${t.sent_count ? `<span>Rate: <strong style="color:var(--orange)">${Math.round((t.reply_count||0)/t.sent_count*100)}%</strong></span>` : ''}
+        </div>
+      </div>`).join('')}
+    <div class="card" style="cursor:pointer;border-style:dashed;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:160px" onclick="openEditTemplate(null)">
+      <div style="font-size:28px;color:var(--fg2)">＋</div>
+      <div style="font-size:13px;font-weight:700;color:var(--fg2)">New Template</div>
+    </div>
+  </div>`;
+}
+
+function openEditTemplate(id) {
+  const t = id ? (templates.find(x=>x.id===id) || {}) : { id:null, name:'', tag:'', subject:'', body:'' };
+  showModal(`
+    <div class="modal-header">
+      <div style="font-size:16px;font-weight:800">${id?'Edit Template':'New Template'}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Template Name</label><input type="text" id="tt-name" value="${esc(t.name||'')}"></div>
+        <div class="form-group"><label class="form-label">Tag / Category</label><input type="text" id="tt-tag" value="${esc(t.tag||'')}"></div>
+        <div class="form-group full"><label class="form-label">Subject Line</label><input type="text" id="tt-subject" value="${esc(t.subject||'')}"></div>
+        <div class="form-group full"><label class="form-label">Body — use {name}, {company}, {market}</label><textarea id="tt-body" style="min-height:260px">${esc(t.body||'')}</textarea></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+        ${id?`<button class="btn btn-red btn-sm" onclick="deleteTemplate('${id}')">🗑 Delete</button>`:''}
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-acid" onclick="saveTemplate('${id||''}')">Save Template</button>
+      </div>
+    </div>`);
+}
+
+async function saveTemplate(id) {
+  const name=document.getElementById('tt-name')?.value.trim();
+  const tag=document.getElementById('tt-tag')?.value.trim();
+  const subject=document.getElementById('tt-subject')?.value.trim();
+  const body=document.getElementById('tt-body')?.value.trim();
+  if (!name||!subject||!body) { toast('Fill all fields','⚠'); return; }
+  const r = await api('templates',{method:'POST',body:JSON.stringify({id:id||undefined,name,tag,subject,body})});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast('Template saved','✅');
+  closeModal();
+  await loadTemplates();
+  renderTemplates();
+}
+
+async function deleteTemplate(id) {
+  if (!confirm('Delete this template?')) return;
+  await api(`templates/${id}`,{method:'DELETE'});
+  toast('Template deleted','🗑');
+  closeModal();
+  await loadTemplates();
+  renderTemplates();
+}
+
+// ── ACTIVITY ──────────────────────────────────────────────────────────────────
+async function renderActivity() {
+  let actPage = 1;
+  let allItems = [];
+
+  const load = async (p=1) => {
+    const data = await api(`activity?page=${p}&limit=50`);
+    const items = data.results || [];
+    const total = data.total || 0;
+    if (p === 1) allItems = items; else allItems = allItems.concat(items);
+    actPage = p;
+    const listHtml = allItems.map(a=>`<div class="act-item">
+      <div class="act-icon">${a.icon||'📝'}</div>
+      <div style="flex:1">
+        <div class="act-text">${esc(a.message)}</div>
+        ${a.contact_name?`<div style="font-size:11px;color:var(--blue);margin-top:1px">${esc(a.contact_name)} · ${esc(a.company||'')}</div>`:''}
+        <div class="act-time">${fmtDate(a.created_at)} · ${timeAgo(a.created_at)}</div>
+      </div>
+    </div>`).join('') || '<div class="empty">No activity yet</div>';
+    document.getElementById('content').innerHTML = `
+      <div style="max-width:700px">
+        <div style="margin-bottom:16px"><span style="font-size:13px;color:var(--fg2)">${total} events total · showing ${allItems.length}</span></div>
+        <div class="card" id="act-list">${listHtml}</div>
+        ${allItems.length < total ? `<button class="btn btn-ghost" id="act-more" style="width:100%;justify-content:center;margin-top:8px">Load More</button>` : ''}
+      </div>`;
+    const moreBtn = document.getElementById('act-more');
+    if (moreBtn) moreBtn.onclick = () => load(actPage + 1);
+  };
+
+  await load(1);
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings() {
+  document.getElementById('content').innerHTML = `
+  <div style="max-width:700px">
+    <div class="card">
+      <div class="card-title">Gmail Integration</div>
+      <div id="gmail-status-section"><div style="color:var(--fg2);font-size:13px">Checking…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Connect Gmail — Setup Guide</div>
+      <div style="font-size:13px;line-height:1.9;color:var(--fg2)">
+        <strong style="color:var(--fg)">1. Google Cloud Console</strong><br>
+        Go to <strong>console.cloud.google.com</strong> → New project → Enable <strong>Gmail API</strong> → OAuth consent screen (External) → Create OAuth Client ID (Web Application)<br><br>
+        Authorized redirect URI: <code style="color:var(--acid);background:var(--bg3);padding:2px 6px;border-radius:4px">https://your-site.pages.dev/api/gmail-auth</code><br><br>
+        <strong style="color:var(--fg)">2. Authorize Gmail Access</strong><br>
+        Visit this URL (replace YOUR_CLIENT_ID):<br>
+        <code style="color:var(--acid);background:var(--bg3);padding:6px 8px;border-radius:4px;display:block;margin:8px 0;font-size:11px;word-break:break-all">https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=https://YOUR-SITE.pages.dev/api/gmail-auth&response_type=code&scope=https://www.googleapis.com/auth/gmail.send&access_type=offline&prompt=consent</code>
+        After approving, the page returns a <strong>refresh_token</strong>.<br><br>
+        <strong style="color:var(--fg)">3. Add Secrets via Wrangler</strong><br>
+        <code style="color:var(--acid);background:var(--bg3);padding:8px 10px;border-radius:4px;display:block;margin:6px 0;line-height:2">wrangler secret put GMAIL_CLIENT_ID<br>wrangler secret put GMAIL_CLIENT_SECRET<br>wrangler secret put GMAIL_REFRESH_TOKEN<br>wrangler secret put GMAIL_FROM_EMAIL</code>
+        Then redeploy: <code style="color:var(--acid)">wrangler pages deploy public --project-name void-hub</code>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">All Secrets Reference</div>
+      <div style="font-size:13px;color:var(--fg2);line-height:2">
+        <code style="color:var(--acid)">ADMIN_EMAIL</code> — Login email<br>
+        <code style="color:var(--acid)">ADMIN_PASSWORD</code> — Login password (plain text, gets hashed)<br>
+        <code style="color:var(--acid)">JWT_SECRET</code> — Random 32-char string<br>
+        <code style="color:var(--acid)">GMAIL_CLIENT_ID</code> · <code style="color:var(--acid)">GMAIL_CLIENT_SECRET</code> · <code style="color:var(--acid)">GMAIL_REFRESH_TOKEN</code> · <code style="color:var(--acid)">GMAIL_FROM_EMAIL</code>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Hunter.io Integration</div>
+      <div id="hunter-status-section"><div style="color:var(--fg2);font-size:13px">Checking…</div></div>
+      <div style="margin-top:14px;font-size:13px;color:var(--fg2);line-height:1.9">
+        Hunter.io finds email addresses by company domain. Free plan gives <strong>25 searches/month</strong>. Get your API key at <strong>hunter.io</strong> → API.<br>
+        <code style="color:var(--acid);background:var(--bg3);padding:6px 8px;border-radius:4px;display:block;margin:8px 0">wrangler secret put HUNTER_API_KEY</code>
+        Then redeploy. Once connected, every contact panel shows a <strong>🔍 Find Email</strong> button.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Management</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export All Contacts CSV</button>
+      </div>
+    </div>
+  </div>`;
+  loadGmailStatus();
+  loadHunterStatus();
+}
+
+async function loadGmailStatus() {
+  const d = await api('email/gmail-status');
+  const el = document.getElementById('gmail-status-section');
+  if (!el) return;
+  if (d.connected) {
+    el.innerHTML = `<div style="background:rgba(63,223,127,.08);border:1px solid rgba(63,223,127,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:10px">✅ Connected — sending from <strong>${d.email}</strong></div>`;
+  } else {
+    el.innerHTML = `<div style="background:rgba(255,79,79,.08);border:1px solid rgba(255,79,79,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--red)">⚠ Gmail not connected. Follow the setup guide below.</div>`;
+  }
+}
+
+async function loadHunterStatus() {
+  const el = document.getElementById('hunter-status-section');
+  if (!el) return;
+  try {
+    const d = await api('hunter/status');
+    if (d.connected) {
+      el.innerHTML = `<div style="background:rgba(63,223,127,.08);border:1px solid rgba(63,223,127,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--green)">✅ Hunter.io connected — 🔍 Find Email is active on all contact panels</div>`;
+    } else {
+      el.innerHTML = `<div style="background:rgba(255,159,63,.08);border:1px solid rgba(255,159,63,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--orange)">○ Hunter.io not connected. Add HUNTER_API_KEY to enable email lookup.</div>`;
+    }
+  } catch { el.innerHTML = ''; }
+}
+
+// ── CONTACT EDIT / DELETE ─────────────────────────────────────────────────────
+function openEdit(id) {
+  const c = contacts.find(x=>x.id===id);
+  if (!c) return;
+  const markets = ['EU - DACH','EU - France','EU - Italy','EU - South','Scandinavia','North America','Middle East','Asia Pacific','Other'];
+  const types = ['Retailer','Boutique','Distributor','Multi-Brand Store','Online Retailer','Designer Boutique','Concept Store','Brand Owner','Other'];
+  const sources = ['LinkedIn','Cold Email','Instagram DM','Referral','Trade Show','Website','CSV Import','Other'];
+  const statuses = ['New','Email Sent','Replied','Meeting Set','Closed','Bounced','Opt-Out'];
+  const priorities = ['Hot','Warm','Cold'];
+  const sel = (opts,val) => opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('');
+  showModal(`
+    <div class="modal-header">
+      <div style="font-size:16px;font-weight:800">Edit Contact</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" id="e-name" value="${esc(c.name)}"></div>
+        <div class="form-group"><label class="form-label">Company</label><input type="text" id="e-company" value="${esc(c.company)}"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="e-email" value="${esc(c.email||'')}"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="e-phone" value="${esc(c.phone||'')}"></div>
+        <div class="form-group"><label class="form-label">Country</label><input type="text" id="e-country" value="${esc(c.country||'')}"></div>
+        <div class="form-group"><label class="form-label">Market</label><select id="e-market">${sel(markets,c.market)}</select></div>
+        <div class="form-group"><label class="form-label">Website</label><input type="text" id="e-website" value="${esc(c.website||'')}"></div>
+        <div class="form-group"><label class="form-label">Instagram</label><input type="text" id="e-instagram" value="${esc(c.instagram||'')}"></div>
+        <div class="form-group"><label class="form-label">Type</label><select id="e-type">${sel(types,c.type)}</select></div>
+        <div class="form-group"><label class="form-label">Source</label><select id="e-source">${sel(sources,c.source)}</select></div>
+        <div class="form-group"><label class="form-label">Status</label><select id="e-status">${sel(statuses,c.status)}</select></div>
+        <div class="form-group"><label class="form-label">Priority</label><select id="e-priority">${sel(priorities,c.priority)}</select></div>
+        <div class="form-group full"><label class="form-label">Notes</label><textarea id="e-notes">${esc(c.notes||'')}</textarea></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-acid" onclick="saveEdit('${id}')">Save Changes</button>
+      </div>
+    </div>`);
+}
+
+function gev(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+
+async function saveEdit(id) {
+  const c = { name:gev('e-name'),company:gev('e-company'),email:gev('e-email'),phone:gev('e-phone'),country:gev('e-country'),market:gev('e-market'),website:gev('e-website'),instagram:gev('e-instagram'),type:gev('e-type'),source:gev('e-source'),status:gev('e-status'),priority:gev('e-priority'),notes:gev('e-notes') };
+  const r = await api(`contacts/${id}`,{method:'PUT',body:JSON.stringify(c)});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast('Saved','✅');
+  closeModal();
+  await loadContacts();
+  renderContacts(false);
+}
+
+async function setStatus(id, status) {
+  const c = contacts.find(x=>x.id===id);
+  if (!c) return;
+  await api(`contacts/${id}`,{method:'PUT',body:JSON.stringify({...c,status})});
+  c.status = status;
+  toast(`Status → ${status}`,'✅');
+  closePanel();
+  await loadContacts();
+}
+
+async function deleteContact(id) {
+  const c = contacts.find(x=>x.id===id);
+  if (!c||!confirm(`Delete ${c.name}?`)) return;
+  await api(`contacts/${id}`,{method:'DELETE'});
+  toast(`${c.name} deleted`,'🗑');
+  await loadContacts();
+  renderContacts(false);
+}
+
+// ── MODAL / UTILS ─────────────────────────────────────────────────────────────
+function showModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+function handleModalClick(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+function cp(text) {
+  navigator.clipboard.writeText(text).then(()=>toast('Copied','⧉')).catch(()=>{});
+}
+
+function toast(msg, icon='') {
+  const el = document.getElementById('toast');
+  el.textContent = `${icon} ${msg}`;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function extractDomain(website) {
+  if (!website) return '';
+  try {
+    const u = new URL(website.startsWith('http') ? website : 'https://' + website);
+    return u.hostname.replace(/^www\./, '');
+  } catch { return website.replace(/^(https?:\/\/)?(www\.)?/,'').split('/')[0]; }
+}
+
+// ── HUNTER.IO ─────────────────────────────────────────────────────────────────
+async function hunterSearch(contactId) {
+  const c = contacts.find(x=>x.id===contactId);
+  if (!c) return;
+  const guessedDomain = extractDomain(c.website || '');
+  const nameParts = (c.name||'').trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  showModal(`
+    <div class="modal-header">
+      <div style="font-size:16px;font-weight:800">🔍 Find Email — ${esc(c.name)}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--fg2);margin-bottom:16px">Powered by Hunter.io. Enter the company domain to search.</div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">Company Domain</label>
+          <input type="text" id="hunter-domain" value="${esc(guessedDomain)}" placeholder="acme.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Search Mode</label>
+          <select id="hunter-mode" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--fg)">
+            <option value="domain">Domain search (all emails)</option>
+            <option value="find">Name + domain (targeted)</option>
+          </select>
+        </div>
+      </div>
+      <div id="hunter-name-fields" style="display:none">
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" id="hunter-first" value="${esc(firstName)}"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" id="hunter-last" value="${esc(lastName)}"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <button class="btn btn-acid" id="hunter-search-btn" onclick="runHunterSearch('${contactId}')">🔍 Search</button>
+      </div>
+      <div id="hunter-results"></div>
+    </div>`);
+
+  document.getElementById('hunter-mode').onchange = function() {
+    document.getElementById('hunter-name-fields').style.display = this.value === 'find' ? '' : 'none';
+  };
+}
+
+async function runHunterSearch(contactId) {
+  const domain = document.getElementById('hunter-domain')?.value.trim();
+  const mode = document.getElementById('hunter-mode')?.value;
+  if (!domain) { toast('Enter a domain','⚠'); return; }
+  const btn = document.getElementById('hunter-search-btn');
+  const resultsEl = document.getElementById('hunter-results');
+  btn.disabled = true; btn.textContent = '⏳ Searching…';
+  resultsEl.innerHTML = '';
+  try {
+    let data;
+    if (mode === 'find') {
+      const first = document.getElementById('hunter-first')?.value.trim() || '';
+      const last = document.getElementById('hunter-last')?.value.trim() || '';
+      const q = new URLSearchParams({domain});
+      if (first) q.set('first_name', first);
+      if (last) q.set('last_name', last);
+      data = await api(`hunter/find?${q}`);
+      if (data.error) throw new Error(data.error);
+      if (!data.email) { resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No email found for this name + domain combination.</div>`; return; }
+      const emails = [{ email: data.email, confidence: data.confidence, first_name: data.first_name, last_name: data.last_name, position: '' }];
+      renderHunterResults(resultsEl, emails, contactId);
+    } else {
+      data = await api(`hunter/domain?domain=${encodeURIComponent(domain)}`);
+      if (data.error) throw new Error(data.error);
+      if (!data.emails?.length) { resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No emails found for <strong>${domain}</strong>. Try the targeted search mode.</div>`; return; }
+      if (data.pattern) {
+        resultsEl.innerHTML += `<div style="font-size:11px;color:var(--fg2);margin-bottom:10px">Pattern: <code style="color:var(--acid)">${data.pattern}@${domain}</code></div>`;
+      }
+      renderHunterResults(resultsEl, data.emails, contactId);
+    }
+  } catch(e) {
+    resultsEl.innerHTML = `<div style="color:var(--red);font-size:13px">⚠ ${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 Search';
+  }
+}
+
+function renderHunterResults(el, emails, contactId) {
+  el.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--fg2);text-transform:uppercase;margin-bottom:8px">${emails.length} result${emails.length!==1?'s':''} found</div>
+    ${emails.map(e=>`
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--acid)">${esc(e.email)}</div>
+          <div style="font-size:11px;color:var(--fg2);margin-top:3px">
+            ${[e.first_name&&e.last_name?`${e.first_name} ${e.last_name}`:'', e.position, e.confidence?`${e.confidence}% confidence`:''].filter(Boolean).join(' · ')}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-ghost btn-xs" onclick="cp('${e.email}')">⧉ Copy</button>
+          <button class="btn btn-acid btn-xs" onclick="applyHunterEmail('${contactId}','${e.email}')">✓ Use</button>
+        </div>
+      </div>`).join('')}`;
+}
+
+async function applyHunterEmail(contactId, email) {
+  const c = contacts.find(x=>x.id===contactId);
+  if (!c) return;
+  const updated = {...c, email};
+  const r = await api(`contacts/${contactId}`, {method:'PUT', body: JSON.stringify(updated)});
+  if (r.error) { toast(r.error,'⚠'); return; }
+  toast(`Email saved: ${email}`, '✅');
+  await loadContacts();
+  closeModal();
+  openPanel(contactId);
+}
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return `${Math.floor(s/60)}m ago`;
+  if(s<86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  TOKEN = localStorage.getItem('void_token') || '';
+  if (TOKEN) {
+    try {
+      const r = await api('auth/me');
+      if (r.email) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        await init();
+        return;
+      }
+    } catch {}
+  }
+  TOKEN = '';
+  document.getElementById('login-screen').style.display = 'flex';
+});
+</script>
+</body>
+</html>
